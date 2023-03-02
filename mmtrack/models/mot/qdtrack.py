@@ -165,6 +165,9 @@ class QDTrack(BaseMultiObjectTracker):
         det_bboxes = torch.tensor(outs_det['bboxes']).to(img)
         det_labels = torch.tensor(outs_det['labels']).to(img).long()
 
+        video_name = img_metas[0]['filename'].split('/')[-3]
+        
+
         track_bboxes, track_labels, track_ids = self.tracker.track(
             img_metas=img_metas,
             feats=x,
@@ -178,5 +181,10 @@ class QDTrack(BaseMultiObjectTracker):
             labels=track_labels,
             ids=track_ids,
             num_classes=num_classes)['bbox_results']
+        
+        if video_name == 'MOT17-13-FRCNN' and frame_id == 102:
+            # assert len(det_bboxes) == 4, f'len(det_bboxes)=={len(det_bboxes)}'
+            import pdb
+            pdb.set_trace()
 
         return dict(det_bboxes=bbox_results, track_bboxes=track_bboxes)

@@ -41,7 +41,7 @@ class MOTChallengeDataset(CocoVideoDataset):
     def __init__(self,
                  visibility_thr=-1,
                  interpolate_tracks_cfg=None,
-                 detection_file=None,
+                 detection_file='/nvme/zhangjingwei/mmtracking/results/qdtrack_test_det.bbox.json',
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
@@ -186,8 +186,12 @@ class MOTChallengeDataset(CocoVideoDataset):
 
         for i in range(num_vids):
             for metric in metrics:
+                if metric == 'bbox':
+                    metric_str = 'det'
+                else:
+                    metric_str = 'track'
                 formatter = getattr(self, f'format_{metric}_results')
-                formatter(results[f'{metric}_bboxes'][inds[i]:inds[i + 1]],
+                formatter(results[f'{metric_str}_bboxes'][inds[i]:inds[i + 1]],
                           self.data_infos[inds[i]:inds[i + 1]],
                           f'{resfiles[metric]}/{names[i]}.txt')
 
@@ -242,8 +246,8 @@ class MOTChallengeDataset(CocoVideoDataset):
                 for bbox, label in zip(outs_det['bboxes'], outs_det['labels']):
                     x1, y1, x2, y2, conf = bbox
                     f.writelines(
-                        f'{frame},-1,{x1:.3f},{y1:.3f},{(x2-x1):.3f},' +
-                        f'{(y2-y1):.3f},{conf:.3f}\n')
+                        f'{frame},-1,{x1:.6f},{y1:.6f},{(x2-x1):.6f},' +
+                        f'{(y2-y1):.6f},{conf:.6f}\n')
             f.close()
 
     def get_benchmark_and_eval_split(self):
